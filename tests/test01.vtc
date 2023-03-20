@@ -1,0 +1,30 @@
+varnishtest "some tests"
+
+varnish v1 -vcl {
+	import uap from "${vmod}";
+
+	backend default none;
+
+	sub vcl_init {
+		new parser = uap.parser("${pwd}/tests/regexes.yaml");
+	}
+
+	sub vcl_recv {
+		return (synth(200));
+	}
+
+	sub vcl_synth {
+		parser.parse(req.http.user-agent);
+		set resp.http.device-family = parser.get("device.family");
+		set resp.http.device-brand= parser.get("device.brand");
+		set resp.http.device-model = parser.get("device.model");
+	}
+} -start
+
+client c1 {
+	txreq -hdr "user-agent: Mozilla/5.0 (Mobile; ALCATEL40440; rv:37.0) Gecko/37.0 Firefox/37.0 KaiOS/1.0"
+	rxresp
+	expect resp.http.device-family == "Alcatel 40440"
+	expect resp.http.device-brand == "Alcatel"
+	expect resp.http.device-model == "40440"
+} -run

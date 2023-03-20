@@ -1,0 +1,7 @@
+# Copyright (c) 2023 Guillaume Quintard Author: Guillaume Quintard
+
+$Module uap 3 "HTTP requests"
+
+$Object parser(STRING)
+$Method VOID .parse(PRIV_TASK, STRING)
+$Method STRING .get(PRIV_TASK, STRING)
